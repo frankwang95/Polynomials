@@ -1,6 +1,7 @@
 import System.Environment
 import System.IO
 import Data.Char
+import Data.List
 import Control.Applicative as A
 import Text.ParserCombinators.ReadP as R
 
@@ -10,35 +11,54 @@ import Text.ParserCombinators.ReadP as R
 data Complex = Complex Float Float
 	deriving (Show)
 
-data Test = Test String String
-	deriving (Show)
+instance Read Complex where
+	readsPrec _ = readP_to_S parseAll
 
 parseX :: ReadP String
 parseX = string ("x->")
 
-parseFloatR :: ReadP String
-parseFloatR = munch $ \x -> (x == '-') || isDigit x || (x == '.')
-parseFloatC :: ReadP String
-parseFloatC = munch $ \x -> (x == '-') || isDigit x || (x == '.') || (x == ' ')
+parseI :: ReadP Bool
+parseI = fmap (const True) (string "*I") <++ pure False
+
+parseNeg :: ReadP Bool
+parseNeg = fmap (const True) (char '-') <++ fmap (const False) (char '+') <++ pure False
+
+parseEnd :: ReadP String
+parseEnd = fmap (const "0.0") eof
+
+parseNumber :: ReadP Float
+parseNumber = do
+		a <- parseNeg
+		b <- parseEnd <++ munch (\x -> (x == '.') || isDigit x)
+		if a then return $ -read (b ++ "0")
+		else return $ read $ b ++ "0"
+
+parseComplex :: ReadP Complex
+parseComplex = do
+	a <- parseNumber
+	b <- parseI
+	if b then return (Complex 0 a)
+	else return (Complex a 0)
 
 parseAll = do
 	parseX
-	a <- parseFloatR
-	b <- parseFloatC
-	return $ Test a b
+	a <- parseComplex
+	b <- parseComplex
+	return $ complexSum a b
 
-readC = readP_to_S parseAll
+complexSum :: Complex -> Complex -> Complex
+complexSum (Complex a b) ( Complex c d) = Complex (a + c) (b + d)
 
 
 -- DATA FORMATTING --
 
-split :: String -> Char -> [String]
-split ss c = helper ss c []
+split :: String -> [String]
+split ss = helper ss []
 	where
-		helper [] _ t = [t]
-		helper (s:ss) c t
-			| s == c = t : helper ss c []
-			| otherwise = helper ss c (t ++ [s])
+		helper [] t = [t]
+		helper (s:ss) t
+			| elem s ['\n', ','] = t : helper ss []
+			| otherwise = helper ss (t ++ [s])
 
 dataFilter :: String -> String
 dataFilter [] = []
@@ -47,14 +67,19 @@ dataFilter (x:xs)
 	| otherwise = x : dataFilter xs
 
 dataFormat :: String -> [String]
-dataFormat str = map dataFilter $ split str '\n'
+dataFormat str = map dataFilter $ split str
 
-rawData = readFile "data"
+
+-- IMAGE PROCESSING --
+
+data Image = Image {pixels :: [[Int]], height :: Int, width :: Int}
 
 
 -- MAIN --
 
--- TESTING VARIABLES --
-
-teststr1 = "{}\n{}\n{{x -> -1.}}\n{{x -> 1.}}\n{{x -> 1.}}\n{{x -> -1.}}\n{{x -> 0. - 1.*I}, {x -> 0. + 1.*I}}\n{{x -> -1.}, {x -> 1.}}\n{{x -> -1.}, {x -> 1.}}\n{{x -> 0. - 1.*I}, {x -> 0. + 1.*I}}\n{{x -> -0.5000000000000001 - 0.8660254037844386*I}, \n {x -> -0.4999999999999998 + 0.8660254037844387*I}}\n{{x -> -0.6180339887498949}, {x -> 1.618033988749895}}\n{{x -> 0.5000000000000001 + 0.8660254037844386*I}, \n {x -> 0.4999999999999998 - 0.8660254037844387*I}}\n{{x -> -1.618033988749895}, {x -> 0.6180339887498949}}\n{{x -> -1.618033988749895}, {x -> 0.6180339887498949}}"
-parsetest = ["","","x->-1.","x->1.","x->1.","x->-1.","x->0.-1.*I,x->0.+1.*I","x->-1.,x->1.","x->-1.,x->1.","x->0.-1.*I,x->0.+1.*I","x->-0.5000000000000001-0.8660254037844386*I,","x->-0.4999999999999998+0.8660254037844387*I","x->-0.6180339887498949,x->1.618033988749895","x->0.5000000000000001+0.8660254037844386*I,","x->0.4999999999999998-0.8660254037844387*I","x->-1.618033988749895,x->0.6180339887498949","x->-1.618033988749895,x->0.6180339887498949"]
+main = do
+	rawData <- readFile "data"
+	handle <- openFile "test" WriteMode
+	let formatedData = dataFormat rawData
+	hPutStr handle $ concat formatedData
+	hClose handle
