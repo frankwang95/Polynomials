@@ -1,3 +1,5 @@
+module Main where
+
 import System.Environment
 import System.IO
 import Data.Char
@@ -40,6 +42,7 @@ parseComplex = do
 	if b then return (Complex 0 a)
 	else return (Complex a 0)
 
+parseAll ::ReadP Complex
 parseAll = do
 	parseX
 	a <- parseComplex
@@ -66,9 +69,14 @@ dataFilter (x:xs)
 	| elem x ['{','}', ' '] = dataFilter xs
 	| otherwise = x : dataFilter xs
 
-dataFormat :: String -> [String]
-dataFormat str = map dataFilter $ split str
+dataFormat :: String -> [Complex]
+dataFormat str = map read $ filter (/= "") $ map dataFilter $ split str
 
+
+testStr = "{{x -> -1.}}\n{{x -> 1.}}\n{{x -> 1.}}\n{{x -> -1.}}\n{{x -> 0. - 1.*I}, {x -> 0. + 1.*I}}\n{{x -> -1.}, {x -> 1.}}\n{{x -> -1.}, {x -> 1.}}\n{{x -> 0. - 1.*I}, {x -> 0. + 1.*I}}\n{{x -> -0.5000000000000001 - 0.8660254037844386*I}, \n {x -> -0.4999999999999998 + 0.8660254037844387*I}}\n{{x -> -0.6180339887498949}, {x -> 1.618033988749895}}\n{{x -> 0.5000000000000001 + 0.8660254037844386*I}, \n {x -> 0.4999999999999998 - 0.8660254037844387*I}}\n{{x -> -1.618033988749895}, {x -> 0.6180339887498949}}\n{{x -> -1.618033988749895}, {x -> 0.6180339887498949}}\n{{x -> 0.5000000000000001 + 0.8660254037844386*I}, \n {x -> 0.4999999999999998 - 0.8660254037844387*I}}"
+testList = dataFormat testStr
+testRead :: [Complex]
+testRead = testList
 
 -- IMAGE PROCESSING --
 
@@ -81,5 +89,5 @@ main = do
 	rawData <- readFile "data"
 	handle <- openFile "test" WriteMode
 	let formatedData = dataFormat rawData
-	hPutStr handle $ concat formatedData
+	hPutStrLn handle $ show formatedData
 	hClose handle
