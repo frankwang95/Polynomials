@@ -3,14 +3,20 @@ module Main where
 import System.Environment
 import System.IO
 import Data.Char
-import Data.List
 import Control.Applicative as A
+import Control.Monad.ST
+import qualified Data.Vector as V
+import qualified Data.Vector.Mutable as M
+import qualified Data.Attoparsec.ByteString.Char8 as  P
 import Text.ParserCombinators.ReadP as R
 
+import PPM
 
--- PARSING --
 
-data Complex = Complex Float Float
+----- PARSING -----
+-------------------
+
+data Complex = Complex Double Double
 	deriving (Show)
 
 instance Read Complex where
@@ -28,7 +34,7 @@ parseNeg = fmap (const True) (char '-') <++ fmap (const False) (char '+') <++ pu
 parseEnd :: ReadP String
 parseEnd = fmap (const "0.0") eof
 
-parseNumber :: ReadP Float
+parseNumber :: ReadP Double
 parseNumber = do
 		a <- parseNeg
 		b <- parseEnd <++ munch (\x -> (x == '.') || isDigit x)
@@ -73,21 +79,60 @@ dataFormat :: String -> [Complex]
 dataFormat str = map read $ filter (/= "") $ map dataFilter $ split str
 
 
-testStr = "{{x -> -1.}}\n{{x -> 1.}}\n{{x -> 1.}}\n{{x -> -1.}}\n{{x -> 0. - 1.*I}, {x -> 0. + 1.*I}}\n{{x -> -1.}, {x -> 1.}}\n{{x -> -1.}, {x -> 1.}}\n{{x -> 0. - 1.*I}, {x -> 0. + 1.*I}}\n{{x -> -0.5000000000000001 - 0.8660254037844386*I}, \n {x -> -0.4999999999999998 + 0.8660254037844387*I}}\n{{x -> -0.6180339887498949}, {x -> 1.618033988749895}}\n{{x -> 0.5000000000000001 + 0.8660254037844386*I}, \n {x -> 0.4999999999999998 - 0.8660254037844387*I}}\n{{x -> -1.618033988749895}, {x -> 0.6180339887498949}}\n{{x -> -1.618033988749895}, {x -> 0.6180339887498949}}\n{{x -> 0.5000000000000001 + 0.8660254037844386*I}, \n {x -> 0.4999999999999998 - 0.8660254037844387*I}}"
-testList = dataFormat testStr
-testRead :: [Complex]
-testRead = testList
-
 -- IMAGE PROCESSING --
 
-data Image = Image {pixels :: [[Int]], height :: Int, width :: Int}
+left = (-4.0)
+right = 4.0
+top = 3.0
+bottom = (-3.0)
+vertPix = 400 -- Piexl ratios must adhere to coordinate ratios
+horzPix = 300
+
+convCoord :: (Int, Int) -> Int
+convCoord (h, v) = v * horzPix + h
+
+computePixel :: Double -> Double -> Double -> Int -> Int
+computePixel leftDown rightUp cord nPix
+	| cord < leftDown || cord > rightUp = (-1)
+	| otherwise = floor $ (cord - leftDown) / pixLength
+		where pixLength = (rightUp - leftDown) / fromIntegral nPix 
+
+convComplex :: Complex -> (Int, Int)
+convComplex (Complex r i) = (h, v)
+	where
+		h = computePixel bottom top r vertPix
+		v = computePixel left right i horzPix
+
+incrTup :: (Int, Int, Int) -> (Int, Int, Int)
+incrTup (a, b, c) = (a + 1, b + 1, c + 1)
+
+incr mv i = do
+	item <- M.read mv i
+	M.write mv i (incrTup item)
+
+genVec :: [Complex] -> V.Vector (Int, Int, Int)
+genVec xs = runST $ do
+	mv <- M.replicate (vertPix * horzPix) (0, 0, 0)
+	mapM_ (incr mv) $ map (convCoord . convComplex) xs
+	V.freeze mv
+
+genImage :: V.Vector (Int, Int, Int) -> PPM
+genImage v = PPM v vertPix horzPix $ (\(x, y, z) -> x) $ V.maximum v
 
 
 -- MAIN --
 
 main = do
+	-- Import / Parse
 	rawData <- readFile "data"
-	handle <- openFile "test" WriteMode
 	let formatedData = dataFormat rawData
-	hPutStrLn handle $ show formatedData
-	hClose handle
+	putStrLn $ show $ formatedData
+
+	{-
+	-- Create Image
+	let ppm = genImage $ genVec $ formatedData
+
+	-- Write Image
+	h <- openFile "test.ppm" WriteMode
+	writeImage ppm h
+	hClose h -}
