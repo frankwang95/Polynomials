@@ -77,12 +77,12 @@ clean ((Left x) : xs) = clean xs
 
 ----- IMAGE PROCESSING -----
 ----------------------------
-left = (-4.0)
-right = 4.0
-top = 3.0
-bottom = (-3.0)
-vertPix = 1200 -- Pixel ratios must adhere to coordinate ratios
-horzPix = 900
+left = (-2.0)
+right = 2.0
+top = 2.0
+bottom = (-2.0)
+vertPix = 6000 -- Pixel ratios must adhere to coordinate ratios
+horzPix = 6000
 
 convCoord :: (Int, Int) -> Int
 convCoord (h, v) = v * horzPix + h
@@ -104,8 +104,8 @@ incrTup (a, b, c) i = (a + i, b + i, c + i)
 
 incr mv i = do
 	item <- M.read mv i
-	if item == (0,0,0)
-		then M.write mv i $ incrTup item 2000
+	if item == (10,10,10)
+		then return ()
 	else M.write mv i $ incrTup item 1
 
 genVec :: [Complex] -> V.Vector (Int, Int, Int)
@@ -130,6 +130,7 @@ isRight :: Either a b -> Bool
 isRight (Left _) = False
 isRight (Right _) = True	
 
+center = [Complex 0 0]
 
 ----- MAIN -----
 ----------------
