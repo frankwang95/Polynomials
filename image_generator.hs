@@ -12,7 +12,7 @@ import qualified Data.Attoparsec.ByteString.Char8 as  P
 import qualified Text.ParserCombinators.ReadP as R
 
 import PPM
-
+import Data.Either
 
 ----- PARSING -----
 -------------------
@@ -57,8 +57,6 @@ parseComplex = do
 	b <- parseSingle
 	return $ complexSum a b
 
-testVar = B.pack "x->-1."
-
 
 ----- DATA FORMATTING -----
 ---------------------------
@@ -71,6 +69,11 @@ dataFilter = B.filter (\x -> not (elem x ['{', '}', ' ']))
 parseAll :: [B.ByteString] -> [Either String Complex]
 parseAll = map readComplex
 
+clean :: [Either String Complex] -> [Complex]
+clean [] = []
+clean ((Right x) : xs) = x : clean xs
+clean ((Left x) : xs) = clean xs
+
 
 ----- IMAGE PROCESSING -----
 ----------------------------
@@ -78,8 +81,8 @@ left = (-4.0)
 right = 4.0
 top = 3.0
 bottom = (-3.0)
-vertPix = 400 -- Piexl ratios must adhere to coordinate ratios
-horzPix = 300
+vertPix = 1200 -- Pixel ratios must adhere to coordinate ratios
+horzPix = 900
 
 convCoord :: (Int, Int) -> Int
 convCoord (h, v) = v * horzPix + h
@@ -96,12 +99,14 @@ convComplex (Complex r i) = (h, v)
 		h = computePixel bottom top r vertPix
 		v = computePixel left right i horzPix
 
-incrTup :: (Int, Int, Int) -> (Int, Int, Int)
-incrTup (a, b, c) = (a + 1, b + 1, c + 1)
+incrTup :: (Int, Int, Int) -> Int -> (Int, Int, Int)
+incrTup (a, b, c) i = (a + i, b + i, c + i)
 
 incr mv i = do
 	item <- M.read mv i
-	M.write mv i (incrTup item)
+	if item == (0,0,0)
+		then M.write mv i $ incrTup item 2000
+	else M.write mv i $ incrTup item 1
 
 genVec :: [Complex] -> V.Vector (Int, Int, Int)
 genVec xs = runST $ do
@@ -113,16 +118,30 @@ genImage :: V.Vector (Int, Int, Int) -> PPM
 genImage v = PPM v vertPix horzPix $ (\(x, y, z) -> x) $ V.maximum v
 
 
+----- TEST CODE -----
+---------------------
+count :: (a -> Bool) -> [a] -> Int
+count _ [] = 0
+count f (x:xs)
+	| f x = 1 + count f xs
+	| otherwise = count f xs
+
+isRight :: Either a b -> Bool
+isRight (Left _) = False
+isRight (Right _) = True	
+
+
 ----- MAIN -----
 ----------------
 main = do
 	-- Import / Parser
 	rawData <- B.readFile "data"
-	let formatedData = parseAll $ split $ dataFilter rawData
+	let formatedData = clean $ parseAll $ split $ dataFilter rawData
+
 	-- Create Image
-	--let ppm = genImage $ genVec $ formatedData
+	let ppm = genImage $ genVec $ formatedData
 
 	-- Write Image
-	h <- openFile "test" WriteMode
-	hPutStr h $ show formatedData
+	h <- openFile "test.ppm" WriteMode
+	writeImage ppm h
 	hClose h
