@@ -7,80 +7,73 @@ import Control.Applicative as A
 import Control.Monad.ST
 import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as M
+import qualified Data.ByteString.Char8 as B
 import qualified Data.Attoparsec.ByteString.Char8 as  P
-import Text.ParserCombinators.ReadP as R
+import qualified Text.ParserCombinators.ReadP as R
 
 import PPM
 
 
 ----- PARSING -----
 -------------------
-
 data Complex = Complex Double Double
 	deriving (Show)
-
-instance Read Complex where
-	readsPrec _ = readP_to_S parseAll
-
-parseX :: ReadP String
-parseX = string ("x->")
-
-parseI :: ReadP Bool
-parseI = fmap (const True) (string "*I") <++ pure False
-
-parseNeg :: ReadP Bool
-parseNeg = fmap (const True) (char '-') <++ fmap (const False) (char '+') <++ pure False
-
-parseEnd :: ReadP String
-parseEnd = fmap (const "0.0") eof
-
-parseNumber :: ReadP Double
-parseNumber = do
-		a <- parseNeg
-		b <- parseEnd <++ munch (\x -> (x == '.') || isDigit x)
-		if a then return $ -read (b ++ "0")
-		else return $ read $ b ++ "0"
-
-parseComplex :: ReadP Complex
-parseComplex = do
-	a <- parseNumber
-	b <- parseI
-	if b then return (Complex 0 a)
-	else return (Complex a 0)
-
-parseAll ::ReadP Complex
-parseAll = do
-	parseX
-	a <- parseComplex
-	b <- parseComplex
-	return $ complexSum a b
 
 complexSum :: Complex -> Complex -> Complex
 complexSum (Complex a b) ( Complex c d) = Complex (a + c) (b + d)
 
+readComplex :: B.ByteString -> Either String Complex
+readComplex = P.parseOnly parseComplex
 
--- DATA FORMATTING --
+-- Tokens
+xT = B.pack "x->"
+iT = B.pack "*I"
 
-split :: String -> [String]
-split ss = helper ss []
-	where
-		helper [] t = [t]
-		helper (s:ss) t
-			| elem s ['\n', ','] = t : helper ss []
-			| otherwise = helper ss (t ++ [s])
+-- Parsers
+parseX :: P.Parser B.ByteString
+parseX = P.string xT
 
-dataFilter :: String -> String
-dataFilter [] = []
-dataFilter (x:xs)
-	| elem x ['{','}', ' '] = dataFilter xs
-	| otherwise = x : dataFilter xs
+parseI :: P.Parser Bool
+parseI = P.option False $ fmap (const True) $ P.string iT
 
-dataFormat :: String -> [Complex]
-dataFormat str = map read $ filter (/= "") $ map dataFilter $ split str
+parseNeg :: P.Parser Bool
+parseNeg = P.option False $ fmap (const True) $ P.char '-'
+
+parseAdd :: P.Parser Bool
+parseAdd = P.option False $ fmap (const True) $ P.char '+'
+
+parseSingle :: P.Parser Complex
+parseSingle = P.option (Complex 0 0) $ do
+	digits <- P.double
+	i <- parseI
+	if i
+		then return $ Complex 0 digits
+	else return $ Complex digits 0
+
+parseComplex :: P.Parser Complex
+parseComplex = do
+	parseX
+	a <- parseSingle
+	b <- parseSingle
+	return $ complexSum a b
+
+testVar = B.pack "x->-1."
 
 
--- IMAGE PROCESSING --
+----- DATA FORMATTING -----
+---------------------------
+split :: B.ByteString -> [B.ByteString]
+split = B.splitWith (\x -> x == ',' || x == '\n')
 
+dataFilter :: B.ByteString -> B.ByteString
+dataFilter = B.filter (\x -> not (elem x ['{', '}', ' ']))
+
+parseAll :: [B.ByteString] -> [Either String Complex]
+parseAll = map readComplex
+
+
+----- IMAGE PROCESSING -----
+----------------------------
 left = (-4.0)
 right = 4.0
 top = 3.0
@@ -120,19 +113,16 @@ genImage :: V.Vector (Int, Int, Int) -> PPM
 genImage v = PPM v vertPix horzPix $ (\(x, y, z) -> x) $ V.maximum v
 
 
--- MAIN --
-
+----- MAIN -----
+----------------
 main = do
-	-- Import / Parse
-	rawData <- readFile "data"
-	let formatedData = dataFormat rawData
-	putStrLn $ show $ formatedData
-
-	{-
+	-- Import / Parser
+	rawData <- B.readFile "data"
+	let formatedData = parseAll $ split $ dataFilter rawData
 	-- Create Image
-	let ppm = genImage $ genVec $ formatedData
+	--let ppm = genImage $ genVec $ formatedData
 
 	-- Write Image
-	h <- openFile "test.ppm" WriteMode
-	writeImage ppm h
-	hClose h -}
+	h <- openFile "test" WriteMode
+	hPutStr h $ show formatedData
+	hClose h
