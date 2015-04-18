@@ -81,11 +81,11 @@ left = (-2.0)
 right = 2.0
 top = 2.0
 bottom = (-2.0)
-vertPix = 6000 -- Pixel ratios must adhere to coordinate ratios
-horzPix = 6000
+vertPix = 3000 -- Pixel ratios must adhere to coordinate ratios
+horzPix = 3000
 
 convCoord :: (Int, Int) -> Int
-convCoord (h, v) = v * horzPix + h
+convCoord (h, v) = (vertPix - v + 1) * horzPix + h
 
 computePixel :: Double -> Double -> Double -> Int -> Int
 computePixel leftDown rightUp cord nPix
@@ -96,8 +96,8 @@ computePixel leftDown rightUp cord nPix
 convComplex :: Complex -> (Int, Int)
 convComplex (Complex r i) = (h, v)
 	where
-		h = computePixel bottom top r vertPix
-		v = computePixel left right i horzPix
+		h = computePixel left right r horzPix
+		v = computePixel bottom top i vertPix
 
 incrTup :: (Int, Int, Int) -> Int -> (Int, Int, Int)
 incrTup (a, b, c) i = (a + i, b + i, c + i)

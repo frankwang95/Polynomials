@@ -7,10 +7,15 @@ import qualified Data.Vector as V
 data PPM = PPM {pixels :: V.Vector (Int, Int, Int) , height :: Int, width :: Int, cap :: Int}
 	deriving (Show)
 
+---------- TOOLS ----------
+---------------------------
 createBlank :: Int -> Int -> PPM
 createBlank h w = PPM pix h w 255
 	where pix = V.replicate (w * h) (0, 0, 0)
 
+
+---------- Writing PPM Files ----------
+---------------------------------------
 writeTup :: (Int, Int, Int) -> Handle -> IO ()
 writeTup (r,g,b) h = hPutStrLn h $ (show r) ++ " " ++ (show g) ++ " " ++ (show b)
 
@@ -25,6 +30,6 @@ writeRow v h = helper v h 0
 writeImage :: PPM -> Handle -> IO ()
 writeImage img h = do
 	hPutStrLn h "P3"
-	hPutStrLn h $ (show (height img)) ++ " " ++ (show (width img))
+	hPutStrLn h $ (show (width img)) ++ " " ++ (show (height img))
 	hPutStrLn h $ show $ cap img
 	writeRow (pixels img) h 
