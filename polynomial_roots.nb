@@ -10,16 +10,14 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     12015,        295]
-NotebookOptionsPosition[     11254,        268]
-NotebookOutlinePosition[     11597,        283]
-CellTagsIndexPosition[     11554,        280]
+NotebookDataLength[      6373,        141]
+NotebookOptionsPosition[      6130,        128]
+NotebookOutlinePosition[      6474,        143]
+CellTagsIndexPosition[      6431,        140]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
-
-Cell[CellGroupData[{
 Cell[BoxData[{
  RowBox[{"Clear", "[", "\"\<Global'*\>\"", "]"}], "\[IndentingNewLine]", 
  RowBox[{
@@ -35,64 +33,48 @@ Cell[BoxData[{
     RowBox[{"OpenWrite", " ", "[", "fileloc", "]"}]}], ";"}], 
   "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
  RowBox[{
-  RowBox[{"maxDeg", "=", "10"}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"maxDeg", "=", "3"}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{
-   RowBox[{"f", "[", 
-    RowBox[{"c_", ",", "x_", ",", "m_"}], "]"}], "=", 
-   RowBox[{"c", "*", 
-    RowBox[{"x", "^", "m"}]}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{
-   RowBox[{"coefficients", "=", 
-    RowBox[{"{", 
+   RowBox[{
+    RowBox[{"printAllSolutions", "[", "d_", "]"}], ":=", 
+    RowBox[{"Do", "[", 
      RowBox[{
-      RowBox[{"-", "1"}], ",", "1"}], "}"}]}], ";"}], "\[IndentingNewLine]", 
-  RowBox[{"(*", " ", 
-   RowBox[{"Making", " ", "List", " ", "of", " ", "Functions"}], " ", 
-   "*)"}]}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"polyList", "=", "coefficients"}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"n", "=", "1"}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{
-   RowBox[{"While", "[", 
-    RowBox[{
-     RowBox[{"n", "\[LessEqual]", "maxDeg"}], ",", 
-     RowBox[{
-      RowBox[{"Do", "[", 
+      RowBox[{"With", "[", 
        RowBox[{
-        RowBox[{"Do", "[", 
-         RowBox[{
-          RowBox[{"polyList", "=", 
-           RowBox[{"Append", "[", 
-            RowBox[{"polyList", ",", 
-             RowBox[{"j", "+", 
-              RowBox[{"f", "[", 
-               RowBox[{"i", ",", "x", ",", "n"}], "]"}]}]}], "]"}]}], ",", 
-          RowBox[{"{", 
-           RowBox[{"i", ",", "coefficients"}], "}"}]}], "]"}], ",", 
         RowBox[{"{", 
-         RowBox[{"j", ",", "polyList"}], "}"}]}], "]"}], ";", 
-      RowBox[{"n", "++"}]}]}], "]"}], ";"}], "\[IndentingNewLine]", 
-  "\[IndentingNewLine]", 
+         RowBox[{"p", "=", 
+          RowBox[{"FromDigits", "[", 
+           RowBox[{
+            RowBox[{"c", "~", "Prepend", "~", "1"}], ",", "x"}], "]"}]}], 
+         "}"}], ",", 
+        RowBox[{"Write", "[", 
+         RowBox[{"out", ",", 
+          RowBox[{
+           RowBox[{"Expand", "[", "p", "]"}], "\[Rule]", 
+           RowBox[{"(", 
+            RowBox[{"x", "/.", 
+             RowBox[{"NSolve", "[", 
+              RowBox[{
+               RowBox[{"p", "\[Equal]", "0"}], ",", "x"}], "]"}]}], ")"}]}]}],
+          "]"}]}], "]"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"c", ",", 
+        RowBox[{"Tuples", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"-", "1"}], ",", 
+            RowBox[{"+", "1"}]}], "}"}], ",", "d"}], "]"}]}], "}"}]}], 
+     "]"}]}], ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
   RowBox[{"(*", " ", 
    RowBox[{"Solving", " ", "and", " ", "Printing"}], " ", 
    "*)"}]}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"Do", "[", 
-   RowBox[{
-    RowBox[{"Write", "[", 
-     RowBox[{"out", ",", 
-      RowBox[{"N", "[", 
-       RowBox[{"Solve", "[", 
-        RowBox[{
-         RowBox[{"i", "\[Equal]", "0"}], ",", "x"}], "]"}], "]"}]}], "]"}], 
-    ",", 
-    RowBox[{"{", 
-     RowBox[{"i", ",", "polyList"}], "}"}]}], "]"}], 
-  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Do", "[", 
+  RowBox[{
+   RowBox[{"printAllSolutions", "[", "i", "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"i", ",", "maxDeg"}], "}"}]}], "]"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"Close", "[", "out", "]"}], ";"}]}], "Input",
  CellChangeTimes->{{3.635824999740537*^9, 3.6358251427930965`*^9}, {
@@ -134,140 +116,18 @@ Cell[BoxData[{
    3.6361143515041704`*^9}, {3.6361144727731667`*^9, 3.636114493130734*^9}, {
    3.636115190228407*^9, 3.6361152022170877`*^9}, {3.6361158316137853`*^9, 
    3.636115832377324*^9}, {3.636116161152966*^9, 3.6361162726826963`*^9}, {
-   3.63611635487611*^9, 3.6361163722089396`*^9}}],
-
-Cell[BoxData[
- RowBox[{
-  StyleBox[
-   RowBox[{"General", "::", "aofil"}], "MessageName"], 
-  RowBox[{
-  ":", " "}], "\<\"\[NoBreak]\\!\\(\\\"C:\\\\\\\\Users\\\\\\\\Frank \
-Wang\\\\\\\\Google Drive\\\\\\\\GitHub\\\\\\\\Polynomials\\\\\\\\data\\\"\\)\
-\[NoBreak] already open as \[NoBreak]\\!\\(\\\"C:\\\\\\\\Users\\\\\\\\Frank \
-Wang\\\\\\\\Google Drive\\\\\\\\GitHub\\\\\\\\Polynomials\\\\\\\\data\\\"\\)\
-\[NoBreak]. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
-ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
-ButtonData:>\\\"paclet:ref/message/General/aofil\\\", ButtonNote -> \
-\\\"General::aofil\\\"]\\)\"\>"}]], "Message", "MSG",
- CellChangeTimes->{3.6361163556189647`*^9}],
-
-Cell[BoxData[
- RowBox[{
-  StyleBox[
-   RowBox[{"OpenWrite", "::", "noopen"}], "MessageName"], 
-  RowBox[{
-  ":", " "}], "\<\"Cannot open \
-\[NoBreak]\\!\\(\\\"C:\\\\\\\\Users\\\\\\\\Frank Wang\\\\\\\\Google Drive\\\\\
-\\\\GitHub\\\\\\\\Polynomials\\\\\\\\data\\\"\\)\[NoBreak]. \
-\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
-ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/General/noopen\\\", \
-ButtonNote -> \\\"OpenWrite::noopen\\\"]\\)\"\>"}]], "Message", "MSG",
- CellChangeTimes->{3.63611635565901*^9}],
-
-Cell[BoxData["$Aborted"], "Output",
- CellChangeTimes->{3.6361163642021346`*^9}],
-
-Cell[BoxData[
- RowBox[{
-  StyleBox[
-   RowBox[{"Write", "::", "strml"}], "MessageName"], 
-  RowBox[{
-  ":", " "}], "\<\"\[NoBreak]\\!\\($Failed\\)\[NoBreak] is not a string, \
-stream, or list of strings and streams. \\!\\(\\*ButtonBox[\\\"\
-\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
-ButtonData:>\\\"paclet:ref/message/General/strml\\\", ButtonNote -> \
-\\\"Write::strml\\\"]\\)\"\>"}]], "Message", "MSG",
- CellChangeTimes->{3.6361163642531834`*^9}],
-
-Cell[BoxData[
- RowBox[{
-  StyleBox[
-   RowBox[{"Write", "::", "noopen"}], "MessageName"], 
-  RowBox[{
-  ":", " "}], "\<\"Cannot open \[NoBreak]\\!\\($Failed\\)\[NoBreak]. \
-\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
-ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/General/noopen\\\", \
-ButtonNote -> \\\"Write::noopen\\\"]\\)\"\>"}]], "Message", "MSG",
- CellChangeTimes->{3.6361163642972136`*^9}],
-
-Cell[BoxData[
- RowBox[{
-  StyleBox[
-   RowBox[{"Write", "::", "strml"}], "MessageName"], 
-  RowBox[{
-  ":", " "}], "\<\"\[NoBreak]\\!\\($Failed\\)\[NoBreak] is not a string, \
-stream, or list of strings and streams. \\!\\(\\*ButtonBox[\\\"\
-\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
-ButtonData:>\\\"paclet:ref/message/General/strml\\\", ButtonNote -> \
-\\\"Write::strml\\\"]\\)\"\>"}]], "Message", "MSG",
- CellChangeTimes->{3.6361163643332396`*^9}],
-
-Cell[BoxData[
- RowBox[{
-  StyleBox[
-   RowBox[{"Write", "::", "noopen"}], "MessageName"], 
-  RowBox[{
-  ":", " "}], "\<\"Cannot open \[NoBreak]\\!\\($Failed\\)\[NoBreak]. \
-\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
-ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/General/noopen\\\", \
-ButtonNote -> \\\"Write::noopen\\\"]\\)\"\>"}]], "Message", "MSG",
- CellChangeTimes->{3.6361163643702707`*^9}],
-
-Cell[BoxData[
- RowBox[{
-  StyleBox[
-   RowBox[{"Write", "::", "strml"}], "MessageName"], 
-  RowBox[{
-  ":", " "}], "\<\"\[NoBreak]\\!\\($Failed\\)\[NoBreak] is not a string, \
-stream, or list of strings and streams. \\!\\(\\*ButtonBox[\\\"\
-\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
-ButtonData:>\\\"paclet:ref/message/General/strml\\\", ButtonNote -> \
-\\\"Write::strml\\\"]\\)\"\>"}]], "Message", "MSG",
- CellChangeTimes->{3.6361163644052763`*^9}],
-
-Cell[BoxData[
- RowBox[{
-  StyleBox[
-   RowBox[{"General", "::", "stop"}], "MessageName"], 
-  RowBox[{
-  ":", " "}], "\<\"Further output of \[NoBreak]\\!\\(\\*StyleBox[\\(Write :: \
-strml\\), \\\"MessageName\\\"]\\)\[NoBreak] will be suppressed during this \
-calculation. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
-ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
-ButtonData:>\\\"paclet:ref/message/General/stop\\\", ButtonNote -> \
-\\\"General::stop\\\"]\\)\"\>"}]], "Message", "MSG",
- CellChangeTimes->{3.6361163644233074`*^9}],
-
-Cell[BoxData[
- RowBox[{
-  StyleBox[
-   RowBox[{"Write", "::", "noopen"}], "MessageName"], 
-  RowBox[{
-  ":", " "}], "\<\"Cannot open \[NoBreak]\\!\\($Failed\\)\[NoBreak]. \
-\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
-ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/General/noopen\\\", \
-ButtonNote -> \\\"Write::noopen\\\"]\\)\"\>"}]], "Message", "MSG",
- CellChangeTimes->{3.636116364459317*^9}],
-
-Cell[BoxData[
- RowBox[{
-  StyleBox[
-   RowBox[{"General", "::", "stop"}], "MessageName"], 
-  RowBox[{
-  ":", " "}], "\<\"Further output of \[NoBreak]\\!\\(\\*StyleBox[\\(Write :: \
-noopen\\), \\\"MessageName\\\"]\\)\[NoBreak] will be suppressed during this \
-calculation. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
-ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
-ButtonData:>\\\"paclet:ref/message/General/stop\\\", ButtonNote -> \
-\\\"General::stop\\\"]\\)\"\>"}]], "Message", "MSG",
- CellChangeTimes->{3.636116364479331*^9}],
-
-Cell[BoxData["$Aborted"], "Output",
- CellChangeTimes->{3.636116382295313*^9}]
-}, Open  ]]
+   3.63611635487611*^9, 3.6361163722089396`*^9}, {3.6377118809971313`*^9, 
+   3.637711882176937*^9}, {3.6377126739511876`*^9, 3.6377126802605124`*^9}, {
+   3.638333739696375*^9, 3.6383337401182547`*^9}, {3.641138068419197*^9, 
+   3.641138077340248*^9}, {3.641138251066781*^9, 3.641138284058241*^9}, {
+   3.6411383187527304`*^9, 3.6411385673663006`*^9}, {3.641138621537053*^9, 
+   3.641138631185622*^9}, {3.641138671322759*^9, 3.641138703145034*^9}, {
+   3.641138785389132*^9, 3.6411388263958235`*^9}, {3.6411388887082863`*^9, 
+   3.6411388915645485`*^9}, {3.64113894176198*^9, 3.641139028239083*^9}, {
+   3.641139070407715*^9, 3.641139075339218*^9}}]
 },
-WindowSize->{944, 991},
-WindowMargins->{{Automatic, 1}, {Automatic, 0}},
+WindowSize->{944, 1111},
+WindowMargins->{{Automatic, 0}, {Automatic, 0}},
 FrontEndVersion->"10.0 for Microsoft Windows (64-bit) (December 4, 2014)",
 StyleDefinitions->"Default.nb"
 ]
@@ -282,21 +142,7 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[CellGroupData[{
-Cell[580, 22, 5458, 114, 332, "Input"],
-Cell[6041, 138, 681, 13, 39, "Message"],
-Cell[6725, 153, 541, 11, 21, "Message"],
-Cell[7269, 166, 79, 1, 31, "Output"],
-Cell[7351, 169, 476, 10, 21, "Message"],
-Cell[7830, 181, 433, 9, 21, "Message"],
-Cell[8266, 192, 476, 10, 21, "Message"],
-Cell[8745, 204, 433, 9, 21, "Message"],
-Cell[9181, 215, 476, 10, 21, "Message"],
-Cell[9660, 227, 531, 11, 21, "Message"],
-Cell[10194, 240, 431, 9, 21, "Message"],
-Cell[10628, 251, 530, 11, 21, "Message"],
-Cell[11161, 264, 77, 1, 64, "Output"]
-}, Open  ]]
+Cell[558, 20, 5568, 106, 252, "Input"]
 }
 ]
 *)
