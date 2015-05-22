@@ -52,7 +52,6 @@ parseSingle = P.option (Complex 0 0) $ do
 
 parseComplex :: P.Parser Complex
 parseComplex = do
-	parseX
 	a <- parseSingle
 	b <- parseSingle
 	return $ complexSum a b
@@ -60,11 +59,14 @@ parseComplex = do
 
 ----- DATA FORMATTING -----
 ---------------------------
-split :: B.ByteString -> [B.ByteString]
-split = B.splitWith (\x -> x == ',' || x == '\n')
+remSpace :: B.ByteString -> B.ByteString
+remSpace = B.filter (\x -> x /= ' ' && x /= '\n')
 
-dataFilter :: B.ByteString -> B.ByteString
-dataFilter = B.filter (\x -> not (elem x ['{', '}', ' ']))
+split :: B.ByteString -> [B.ByteString]
+split = B.splitWith (\x -> x == '{' || x == '}' || x == ',')
+
+remTrash :: [B.ByteString] -> [B.ByteString]
+remTrash = filter $ B.notElem 'x'
 
 parseAll :: [B.ByteString] -> [Either String Complex]
 parseAll = map readComplex
@@ -81,8 +83,8 @@ left = (-2.0)
 right = 2.0
 top = 2.0
 bottom = (-2.0)
-vertPix = 3000 -- Pixel ratios must adhere to coordinate ratios
-horzPix = 3000
+vertPix = 800 -- Pixel ratios must adhere to coordinate ratios
+horzPix = 800
 
 convCoord :: (Int, Int) -> Int
 convCoord (h, v) = (vertPix - v + 1) * horzPix + h
@@ -137,7 +139,9 @@ center = [Complex 0 0]
 main = do
 	-- Import / Parser
 	rawData <- B.readFile "data"
-	let formatedData = clean $ parseAll $ split $ dataFilter rawData
+
+	let formatedData = p ++ p -- Doubled bc/ new data contains half the points
+		where p = clean $ parseAll $ remTrash $ split $ remSpace rawData
 
 	-- Create Image
 	let ppm = genImage $ genVec $ formatedData
