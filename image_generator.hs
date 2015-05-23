@@ -83,11 +83,16 @@ left = (-2.0)
 right = 2.0
 top = 2.0
 bottom = (-2.0)
+<<<<<<< HEAD
 vertPix = 800 -- Pixel ratios must adhere to coordinate ratios
 horzPix = 800
+=======
+vertPix = 6000 -- Pixel ratios must adhere to coordinate ratios
+horzPix = 6000
+>>>>>>> parent of c9a74a7... Fixed indexing bug
 
 convCoord :: (Int, Int) -> Int
-convCoord (h, v) = (vertPix - v + 1) * horzPix + h
+convCoord (h, v) = v * horzPix + h
 
 computePixel :: Double -> Double -> Double -> Int -> Int
 computePixel leftDown rightUp cord nPix
@@ -98,8 +103,8 @@ computePixel leftDown rightUp cord nPix
 convComplex :: Complex -> (Int, Int)
 convComplex (Complex r i) = (h, v)
 	where
-		h = computePixel left right r horzPix
-		v = computePixel bottom top i vertPix
+		h = computePixel bottom top r vertPix
+		v = computePixel left right i horzPix
 
 incrTup :: (Int, Int, Int) -> Int -> (Int, Int, Int)
 incrTup (a, b, c) i = (a + i, b + i, c + i)
