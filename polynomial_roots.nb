@@ -10,46 +10,65 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      8351,        169]
-NotebookOptionsPosition[      8107,        156]
-NotebookOutlinePosition[      8452,        171]
-CellTagsIndexPosition[      8409,        168]
+NotebookDataLength[      9312,        198]
+NotebookOptionsPosition[      9069,        185]
+NotebookOutlinePosition[      9413,        200]
+CellTagsIndexPosition[      9370,        197]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
-Cell[BoxData[
- RowBox[{"Timing", "[", 
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"ClearAll", "[", "\"\<Global`*\>\"", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"fileloc", " ", "=", " ", 
+   RowBox[{"FileNameJoin", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"NotebookDirectory", "[", "]"}], ",", "\"\<data\>\""}], "}"}], 
+    "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
   RowBox[{
-   RowBox[{"ClearAll", "[", "\"\<Global`*\>\"", "]"}], ";", "\n", 
-   RowBox[{"deg", " ", "=", " ", "9"}], ";", "\n", 
+   RowBox[{"out", " ", "=", " ", 
+    RowBox[{"OpenWrite", " ", "[", "fileloc", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{"deg", " ", "=", " ", "10"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
    RowBox[{"coefficients", " ", "=", " ", 
     RowBox[{"{", 
      RowBox[{
-      RowBox[{"-", "1"}], ",", " ", "0", ",", " ", "1"}], "}"}]}], ";", " ", 
-   "\n", 
-   RowBox[{
-    RowBox[{"polyGen", "[", "list_", "]"}], " ", ":=", " ", 
-    RowBox[{"Total", "[", 
-     RowBox[{
-      RowBox[{"(", 
+      RowBox[{"-", "1"}], ",", " ", "0", ",", " ", "1"}], "}"}]}], ";"}], 
+  " "}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"polyGen", "[", "list_", "]"}], " ", ":=", " ", 
+   RowBox[{"Total", "[", 
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{
        RowBox[{
-        RowBox[{
-         RowBox[{"(", 
-          RowBox[{
-           RowBox[{"#1", "*", 
-            RowBox[{"x", "^", "#2"}]}], " ", "&"}], " ", ")"}], " ", "@@", 
-         " ", "#1"}], " ", "&"}], " ", ")"}], " ", "/@", " ", 
-      RowBox[{"Transpose", "[", 
-       RowBox[{"{", 
-        RowBox[{"list", ",", " ", 
-         RowBox[{"Range", "[", 
-          RowBox[{"0", ",", " ", "deg"}], "]"}]}], "}"}], "]"}]}], "]"}]}], 
-   ";", "\[IndentingNewLine]", 
-   RowBox[{
-    RowBox[{"tupList", "[", "1", "]"}], "=", 
-    RowBox[{"{", 
-     RowBox[{"{", "1", "}"}], "}"}]}], ";", "\[IndentingNewLine]", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"#1", "*", 
+           RowBox[{"x", "^", "#2"}]}], " ", "&"}], " ", ")"}], " ", "@@", " ",
+         "#1"}], " ", "&"}], " ", ")"}], " ", "/@", " ", 
+     RowBox[{"Transpose", "[", 
+      RowBox[{"{", 
+       RowBox[{"list", ",", " ", 
+        RowBox[{"Range", "[", 
+         RowBox[{"0", ",", " ", "deg"}], "]"}]}], "}"}], "]"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"tupList", "[", "1", "]"}], "=", 
+   RowBox[{"{", 
+    RowBox[{"{", "1", "}"}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
    RowBox[{
     RowBox[{"tupList", "[", "n_", "]"}], ":=", 
     RowBox[{"Join", "[", 
@@ -66,17 +85,23 @@ Cell[BoxData[
         RowBox[{"Prepend", "[", 
          RowBox[{"#", ",", "0"}], "]"}], "&"}], "/@", 
        RowBox[{"tupList", "[", 
-        RowBox[{"n", "-", "1"}], "]"}]}]}], "]"}]}], ";", 
-   "\[IndentingNewLine]", "\[IndentingNewLine]", 
-   RowBox[{"ParallelMap", "[", 
+        RowBox[{"n", "-", "1"}], "]"}]}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Map", "[", 
+   RowBox[{
     RowBox[{
-     RowBox[{
-      RowBox[{"NSolve", "[", 
-       RowBox[{
-        RowBox[{"#", "==", "0"}], ",", "x"}], "]"}], "&"}], ",", 
-     RowBox[{"polyGen", "/@", 
-      RowBox[{"tupList", "[", 
-       RowBox[{"deg", "+", "1"}], "]"}]}]}], "]"}]}], "]"}]], "Input",
+     RowBox[{"Write", "[", 
+      RowBox[{"out", ",", 
+       RowBox[{"NSolve", "[", 
+        RowBox[{
+         RowBox[{"#", "==", "0"}], ",", "x"}], "]"}]}], "]"}], "&"}], ",", 
+    RowBox[{"polyGen", "/@", 
+     RowBox[{"tupList", "[", 
+      RowBox[{"deg", "+", "1"}], "]"}]}]}], "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Close", "[", "out", "]"}], ";"}]}], "Input",
  CellChangeTimes->{{3.645893247699139*^9, 3.645893249477265*^9}, {
    3.6458933404127045`*^9, 3.6458933605709815`*^9}, {3.645893396073272*^9, 
    3.6458934018378363`*^9}, {3.645893476250574*^9, 3.6458934763965197`*^9}, {
@@ -151,11 +176,15 @@ Cell[BoxData[
    3.6459857660948935`*^9}, {3.6459858003958235`*^9, 
    3.6459858006302013`*^9}, {3.6459861184831443`*^9, 3.645986140288633*^9}, {
    3.6459862518810005`*^9, 3.645986282133643*^9}, {3.645986315886746*^9, 
-   3.6459863438008127`*^9}, 3.645987299498888*^9},
- FormatType->"InputForm"]
+   3.6459863438008127`*^9}, 3.645987299498888*^9, {3.645987374792263*^9, 
+   3.645987377366637*^9}, {3.646008624456995*^9, 3.646008652521483*^9}, {
+   3.6460087089740996`*^9, 3.646008715954832*^9}, {3.6460087586340985`*^9, 
+   3.6460087625367513`*^9}, {3.646009723663315*^9, 3.646009725539832*^9}, {
+   3.646009851614482*^9, 3.6460098559556475`*^9}, {3.646010023029501*^9, 
+   3.6460100577773933`*^9}, {3.646010123195262*^9, 3.6460101234605274`*^9}}]
 },
-WindowSize->{918, 1103},
-WindowMargins->{{26, Automatic}, {Automatic, 0}},
+WindowSize->{944, 1103},
+WindowMargins->{{Automatic, 0}, {Automatic, 0}},
 FrontEndVersion->"10.0 for Microsoft Windows (64-bit) (December 4, 2014)",
 StyleDefinitions->"Default.nb"
 ]
@@ -170,7 +199,7 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[558, 20, 7545, 134, 151, "Input"]
+Cell[558, 20, 8507, 163, 285, "Input"]
 }
 ]
 *)
