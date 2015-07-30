@@ -1,0 +1,107 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      2737,         98]
+NotebookOptionsPosition[      2499,         85]
+NotebookOutlinePosition[      2839,        100]
+CellTagsIndexPosition[      2796,         97]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"ClearAll", "[", "\"\<Global`*\>\"", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"fileloc", "=", 
+   RowBox[{"FileNameJoin", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"NotebookDirectory", "[", "]"}], ",", "\"\<out.txt\>\""}], 
+     "}"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"n", "=", "15"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"coefficients", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1"}], ",", "0", ",", "1"}], "}"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"polyGen", "[", "list_", "]"}], ":=", 
+   RowBox[{"Total", "[", 
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"#1", "*", 
+           RowBox[{"x", "^", "#2"}]}], "&"}], ")"}], "@@", "#1"}], "&"}], 
+      ")"}], "/@", 
+     RowBox[{"Transpose", "[", 
+      RowBox[{"{", 
+       RowBox[{"list", ",", 
+        RowBox[{"Range", "[", 
+         RowBox[{"0", ",", "n"}], "]"}]}], "}"}], "]"}]}], "]"}]}], 
+  ";"}], "\n", 
+ RowBox[{"polynomials", "=", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Prepend", "[", 
+     RowBox[{"#", ",", "1"}], "]"}], "&"}], "/@", 
+   RowBox[{"Tuples", "[", 
+    RowBox[{"coefficients", ",", "n"}], "]"}]}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"computeRoots", "[", "]"}], ":=", 
+    RowBox[{"x", "/.", 
+     RowBox[{"Apply", "[", 
+      RowBox[{"Union", ",", 
+       RowBox[{"ParallelMap", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"NSolve", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"polyGen", "[", "#", "]"}], "\[Equal]", "0"}], ",", 
+            "x"}], "]"}], "&"}], ",", "polynomials"}], "]"}]}], "]"}]}]}], 
+   ";"}], "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Export", "[", 
+   RowBox[{"fileloc", ",", 
+    RowBox[{"computeRoots", "[", "]"}]}], "]"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.6472797891762486`*^9, 3.6472797892342978`*^9}}]
+},
+WindowSize->{798, 818},
+WindowMargins->{{Automatic, -7}, {Automatic, 0}},
+FrontEndVersion->"10.2 for Microsoft Windows (64-bit) (July 7, 2015)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 1937, 63, 212, "Input"]
+}
+]
+*)
+
+(* End of internal cache information *)
