@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     14937,        362]
-NotebookOptionsPosition[     14544,        344]
-NotebookOutlinePosition[     14883,        359]
-CellTagsIndexPosition[     14840,        356]
+NotebookDataLength[     15083,        364]
+NotebookOptionsPosition[     14690,        346]
+NotebookOutlinePosition[     15029,        361]
+CellTagsIndexPosition[     14986,        358]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -26,10 +26,11 @@ Cell[BoxData[{
   RowBox[{"fileloc", " ", "=", " ", 
    RowBox[{"FileNameJoin", "[", 
     RowBox[{"{", 
-     RowBox[{"$HomeDirectory", ",", "\"\<out.txt\>\""}], "}"}], "]"}]}], 
-  ";"}], "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"NotebookDirectory", "[", "]"}], ",", "\"\<out.txt\>\""}], 
+     "}"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
-  RowBox[{"n", "=", "16"}], ";"}], "\n", 
+  RowBox[{"n", "=", "8"}], ";"}], "\n", 
  RowBox[{
   RowBox[{
    RowBox[{"coefficients", " ", "=", " ", 
@@ -101,9 +102,10 @@ Cell[BoxData[{
  RowBox[{
   RowBox[{"Export", "[", 
    RowBox[{"fileloc", ",", 
-    RowBox[{"Compress", "[", 
-     RowBox[{"computeRoots", "[", "]"}], "]"}]}], "]"}], ";"}]}], "Input",
- CellChangeTimes->{{3.646926210675334*^9, 3.646926233122615*^9}}],
+    RowBox[{"computeRoots", "[", "]"}]}], "]"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.646926210675334*^9, 3.646926233122615*^9}, {
+  3.647315976577612*^9, 3.6473159773601503`*^9}, {3.6473160351742945`*^9, 
+  3.6473160416570187`*^9}, {3.647316199836461*^9, 3.6473162060369205`*^9}}],
 
 Cell[BoxData[
  RowBox[{
@@ -358,11 +360,11 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[558, 20, 2681, 85, 232, "Input"],
-Cell[3242, 107, 10441, 209, 452, "Input"],
+Cell[558, 20, 2827, 87, 265, "Input"],
+Cell[3388, 109, 10441, 209, 452, "Input"],
 Cell[CellGroupData[{
-Cell[13708, 320, 637, 17, 92, "Input"],
-Cell[14348, 339, 180, 2, 31, "Output"]
+Cell[13854, 322, 637, 17, 92, "Input"],
+Cell[14494, 341, 180, 2, 31, "Output"]
 }, Open  ]]
 }
 ]
