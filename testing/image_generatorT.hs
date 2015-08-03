@@ -113,20 +113,13 @@ genImage'' v = PPM' out imgSize imgSize 255
 
 ------
 
-parseMap :: [LB.ByteString] -> Int -> [Complex]
-parseMap x n = runPar $ do
-	let l1 = take n x
-	let l2 = take n $ drop n x
-	let l3 = take n $ drop (2*n) x
-	let l4 = drop (3*n) x
-	a <- spawnP $ map (extr.LP.parse parseComplex) $ l1
-	b <- spawnP $ map (extr.LP.parse parseComplex) $ l2
-	c <- spawnP $ map (extr.LP.parse parseComplex) $ l3
-	d <- spawnP $ map (extr.LP.parse parseComplex) $ l4
-	w <- get a
-	x <- get b
-	y <- get c
-	z <- get d
+parseMap :: [LB.ByteString] -> [Complex]
+parseMap x = runPar $ do
+	let (as, bs) = force $ splitAt (length x `div` 2) x
+	a <- spawnP $ map (force.extr.LP.parse parseComplex) as 
+	b <- spawnP $ map (force.extr.LP.parse parseComplex) bs
+	c <- get a
+	d <- get b
 	return $ c ++ d
 
 ---------- MAIN ----------
@@ -134,9 +127,9 @@ parseMap x n = runPar $ do
 main = do
 	rawData <- liftA LB.words (LB.readFile "/mnt/hgfs/outputs/out.txt")
 	--let formatedData = map (extr.LP.parse parseComplex) rawData
-	let formatedData = parseMap rawData 10000000
+	let formatedData = parseMap rawData
 	formatedData `deepseq` return ()
-
+{-
 	h <- openFile "test.ppm" WriteMode
 	writeImage'(genImage' (genVec' formatedData)) h
-	hClose h
+	hClose h -}
