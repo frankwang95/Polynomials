@@ -2,7 +2,7 @@ module PPM where
 
 import System.Environment
 import System.IO
-import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as V
 
 data PPM = PPM {pixels :: V.Vector (Int, Int, Int) , height :: Int, width :: Int, cap :: Int}
 	deriving (Show)

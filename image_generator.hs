@@ -1,14 +1,18 @@
+-- ghc image_generatorT.hs -O2 -optc-O3
+
+module Main where
+
 import PPM
 import System.IO
 import Control.Applicative as A
 import Control.Monad.ST
-import qualified Data.Vector as V
-import qualified Data.Vector.Mutable as M
+import qualified Data.Vector.Unboxed as V
+import qualified Data.Vector.Unboxed.Mutable as M
 import qualified Data.ByteString.Char8 as B
 import qualified Data.ByteString.Lazy.Char8 as LB
+import Data.ByteString.Lex.Fractional
 import qualified Data.Attoparsec.ByteString.Char8 as P
 import qualified Data.Attoparsec.ByteString.Lazy as LP
-
 
 apply :: a -> (a -> b) -> b
 apply a = \f -> f a
@@ -31,8 +35,10 @@ parseTerm :: P.Parser Complex
 parseTerm = parseDouble <*> parseConv
 	where 
 		parseDouble = liftA (\x -> apply (Complex x 0)) $
-			liftA2 (\x y -> read ((x:y) ++ "0")) P.anyChar $ many $ P.satisfy $ \x -> P.isDigit x || x == '.'
+			liftA2 (\x y -> toDecimal (B.append x y)) (P.take 1) $ P.takeWhile $ \x -> P.isDigit x || x == '.'
 		parseConv = P.option id $ liftA (const cConv) $ P.string $ B.pack "*I"
+		toDecimal s = case (readSigned readDecimal) s of
+                       Just (d, _) -> d
 
 test :: P.Parser String
 test = liftA2 (\x y -> (x:y)) P.anyChar $ many $ P.satisfy $ \x -> P.isDigit x || x == '.'
@@ -41,14 +47,15 @@ parseComplex :: P.Parser Complex
 parseComplex = liftA2 cAdd parseTerm $ many $ many (P.char '+') A.*> parseTerm
 
 
+
 ---------- IMAGE PROCESSING ----------
 
 bounds = 2.0 :: Double
-imgSize = 400 :: Int
+imgSize = 3000 :: Int
 
-intensity = 300 :: Int
+intensity = 300.0 :: Double
 falloff = 0.8 :: Double
-(r, g, b) = (1.0, 0.3, 0.1)
+(r, g, b) = (255.0, 76.5, 25.5) :: (Double, Double, Double)
 
 computeIndex :: Double -> Int
 computeIndex x = (+) 1 $ floor $ (x + bounds) / (2 * bounds / fromIntegral imgSize)
@@ -62,21 +69,18 @@ computeCIndex (Complex r i) = convCoord (computeIndex r, computeIndex i)
 genVec :: [Complex] -> V.Vector Int
 genVec xs = runST $ do
 	mv <- M.replicate (imgSize ^ 2) 0
-	mapM_ (incr mv) $ map computeCIndex xs -- unsafeModify
+	mapM_ (M.modify mv (+1)) $ map computeCIndex xs -- unsafeModify
 	V.freeze mv
-		where
-			incr mv i = do
-				pre <- M.unsafeRead mv i
-				M.unsafeWrite mv i $ pre + 1
 
-colorFunction :: Int -> (Int, Int, Int)
-colorFunction n = (floor (y * r), floor(y * g), floor(y * b))
-	where y = ((fromIntegral (intensity * n)) ** falloff)
+colorFunction :: Double -> (Int, Int, Int)
+colorFunction d = (floor (y * r), floor(y * g), floor(y * b))
+	where y = (intensity * d) ** falloff
 
 colorFunction1 n = (n, n, n)
 
 genImage :: V.Vector Int -> PPM
-genImage v = PPM (V.map colorFunction1 v) imgSize imgSize $ V.maximum v
+genImage v = PPM (V.map (\x -> colorFunction((fromIntegral x) / (fromIntegral mx))) v) imgSize imgSize 255
+	where mx = V.maximum v
 
 
 extr :: LP.Result a -> a
