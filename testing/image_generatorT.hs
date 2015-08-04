@@ -3,8 +3,11 @@ module Main where
 import PPM
 import UPPM
 import System.IO
+import System.Directory
 import Control.Applicative as A
 import Control.Monad.ST
+import Control.Monad.Par
+import Control.DeepSeq
 import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Unboxed.Mutable as M
 import qualified Data.Vector.Unboxed as UV
@@ -14,9 +17,7 @@ import qualified Data.ByteString.Lazy.Char8 as LB
 import Data.ByteString.Lex.Fractional
 import qualified Data.Attoparsec.ByteString.Char8 as P
 import qualified Data.Attoparsec.ByteString.Lazy as LP
-import Control.Monad.Par
 
-import Control.DeepSeq
 
 instance NFData Complex where
 	rnf (Complex a b) = rnf a `seq` rnf b
@@ -111,23 +112,22 @@ genImage'' v = PPM' out imgSize imgSize 255
 		adjColF freq = colorFunction $ (fromIntegral freq) / (fromIntegral mx)
 		out = UV.generate (imgSize ^ 2) $ adjColF.(UV.!) v
 
-------
-
-parseMap :: [LB.ByteString] -> [Complex]
-parseMap x = runPar $ do
-	let (as, bs) = force $ splitAt (length x `div` 2) x
-	a <- spawnP $ map (force.extr.LP.parse parseComplex) as 
-	b <- spawnP $ map (force.extr.LP.parse parseComplex) bs
-	c <- get a
-	d <- get b
-	return $ c ++ d
+parseMap :: [LB.ByteString] -> [LB.ByteString] -> [Complex]
+parseMap a b = runPar $ do
+	formatedDataA <- spawnP $ map (extr.LP.parse parseComplex) a
+	formatedDataB <- spawnP $ map (extr.LP.parse parseComplex) b
+	a' <- get formatedDataA
+	b' <- get formatedDataB
+	return $ a' ++ b'
 
 ---------- MAIN ----------
 
 main = do
-	rawData <- liftA LB.words (LB.readFile "/mnt/hgfs/outputs/out.txt")
+	rawDataA <- liftA LB.words (LB.readFile "/mnt/hgfs/outputs/xaa")
+	rawDataB <- liftA LB.words (LB.readFile "/mnt/hgfs/outputs/xab")
+	--rawData <- liftA LB.words (LB.readFile "/mnt/hgfs/outputs/test_c")
+	let formatedData = parseMap rawDataA rawDataB
 	--let formatedData = map (extr.LP.parse parseComplex) rawData
-	let formatedData = parseMap rawData
 	formatedData `deepseq` return ()
 {-
 	h <- openFile "test.ppm" WriteMode
