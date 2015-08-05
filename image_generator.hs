@@ -6,6 +6,8 @@ import PPM
 import System.IO
 import Control.Applicative as A
 import Control.Monad.ST
+import Control.Monad.Par
+import Contrl.DeepSeq
 import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Unboxed.Mutable as M
 import qualified Data.ByteString.Char8 as B
@@ -14,8 +16,15 @@ import Data.ByteString.Lex.Fractional
 import qualified Data.Attoparsec.ByteString.Char8 as P
 import qualified Data.Attoparsec.ByteString.Lazy as LP
 
+instance NFData Complex where
+	rnf (Complex a b) = rnf a `seq` rnf b
+
 apply :: a -> (a -> b) -> b
 apply a = \f -> f a
+
+extr :: LP.Result a -> a
+extr (LP.Done _ r) = r
+extr (LP.Fail _ _ y) = error y
 
 
 ---------- PARSING ----------
@@ -82,17 +91,23 @@ genImage :: V.Vector Int -> PPM
 genImage v = PPM (V.map (\x -> colorFunction((fromIntegral x) / (fromIntegral mx))) v) imgSize imgSize 255
 	where mx = V.maximum v
 
+pipeLineFunction :: [LB.ByteString] -> UV.Vector Int
+pipeLineFunction xs = genVec' $ map (extr.LP.parse parseComplex) xs
 
-extr :: LP.Result a -> a
-extr (LP.Done _ r) = r
-extr (LP.Fail _ _ y) = error y
 
 ---------- MAIN ----------
 
 main = do
-	rawData <- liftA LB.words (LB.readFile "/mnt/hgfs/outputs/out_1-14.txt")
-	let formatedData = map (extr.LP.parse parseComplex) rawData
+	rawDataA <- liftA LB.words (LB.readFile "/mnt/hgfs/outputs/test/xaa")
+	rawDataB <- liftA LB.words (LB.readFile "/mnt/hgfs/outputs/test/xab")
+
+	let formatedData = runPar $ do
+		a <- spawnP $ pipeLineFunction rawDataA
+		b <- spawnP $ pipeLineFunction rawDataB
+		vec1 <- get a
+		vec2 <- get b
+		return $ UV.zipWith (+) vec1 vec2
 
 	h <- openFile "test.ppm" WriteMode
-	writeImage (genImage (genVec formatedData)) h
+	writeImage'(genImage' formatedData) h
 	hClose h
