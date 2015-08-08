@@ -1,5 +1,3 @@
--- ghc image_generatorT.hs -O2 -optc-O3
-
 module Main where
 
 import PPM
@@ -7,7 +5,7 @@ import System.IO
 import Control.Applicative as A
 import Control.Monad.ST
 import Control.Monad.Par
-import Contrl.DeepSeq
+import Control.DeepSeq
 import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Unboxed.Mutable as M
 import qualified Data.ByteString.Char8 as B
@@ -60,11 +58,11 @@ parseComplex = liftA2 cAdd parseTerm $ many $ many (P.char '+') A.*> parseTerm
 ---------- IMAGE PROCESSING ----------
 
 bounds = 2.0 :: Double
-imgSize = 3000 :: Int
+imgSize = 8000 :: Int
 
-intensity = 300.0 :: Double
-falloff = 0.8 :: Double
-(r, g, b) = (255.0, 76.5, 25.5) :: (Double, Double, Double)
+intensity = 5000.0 :: Double
+falloff = 0.1 :: Double
+(r, g, b) = (212.0, 118.0, 137.0) :: (Double, Double, Double)
 
 computeIndex :: Double -> Int
 computeIndex x = (+) 1 $ floor $ (x + bounds) / (2 * bounds / fromIntegral imgSize)
@@ -91,23 +89,23 @@ genImage :: V.Vector Int -> PPM
 genImage v = PPM (V.map (\x -> colorFunction((fromIntegral x) / (fromIntegral mx))) v) imgSize imgSize 255
 	where mx = V.maximum v
 
-pipeLineFunction :: [LB.ByteString] -> UV.Vector Int
-pipeLineFunction xs = genVec' $ map (extr.LP.parse parseComplex) xs
+pipeLineFunction :: [LB.ByteString] -> V.Vector Int
+pipeLineFunction xs = genVec $ map (extr.LP.parse parseComplex) xs
 
 
 ---------- MAIN ----------
 
 main = do
-	rawDataA <- liftA LB.words (LB.readFile "/mnt/hgfs/outputs/test/xaa")
-	rawDataB <- liftA LB.words (LB.readFile "/mnt/hgfs/outputs/test/xab")
+	rawDataA <- liftA LB.words (LB.readFile "/mnt/hgfs/Outputs/Arch/xaa")
+	rawDataB <- liftA LB.words (LB.readFile "/mnt/hgfs/Outputs/Arch/xab")
 
 	let formatedData = runPar $ do
 		a <- spawnP $ pipeLineFunction rawDataA
 		b <- spawnP $ pipeLineFunction rawDataB
 		vec1 <- get a
 		vec2 <- get b
-		return $ UV.zipWith (+) vec1 vec2
+		return $ V.zipWith (+) vec1 vec2
 
 	h <- openFile "test.ppm" WriteMode
-	writeImage'(genImage' formatedData) h
+	writeImage (genImage formatedData) h
 	hClose h
