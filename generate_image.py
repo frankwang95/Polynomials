@@ -19,7 +19,11 @@ def generate_hist(data):
 def parse_to_numbers(chunk):
     roots = []
     for c in chunk:
-        roots.append([float(s) for s in c.split(',')])
+        # Ignoring weird mathematica scientic notation output
+        try:
+            roots.append([float(s) for s in c.split(',')])
+        except:
+            continue
     return np.array(roots)
 
 def main():
