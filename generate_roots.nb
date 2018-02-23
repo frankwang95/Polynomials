@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      3898,        116]
-NotebookOptionsPosition[      3587,        102]
-NotebookOutlinePosition[      3945,        118]
-CellTagsIndexPosition[      3902,        115]
+NotebookDataLength[      3981,        122]
+NotebookOptionsPosition[      3684,        108]
+NotebookOutlinePosition[      4021,        123]
+CellTagsIndexPosition[      3978,        120]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -26,10 +26,10 @@ Cell[BoxData[{
    RowBox[{"FileNameJoin", "[", 
     RowBox[{"{", 
      RowBox[{
-      RowBox[{"NotebookDirectory", "[", "]"}], ",", "\"\<out.txt\>\""}], 
+      RowBox[{"NotebookDirectory", "[", "]"}], ",", "\"\<out1.txt\>\""}], 
      "}"}], "]"}]}], ";"}], "\n", 
  RowBox[{
-  RowBox[{"n", "=", "10"}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"n", "=", "16"}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{
    RowBox[{"coefficients", "=", 
@@ -39,14 +39,17 @@ Cell[BoxData[{
   "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"fileStream", " ", "=", " ", 
-   RowBox[{"OpenWrite", "[", "fileloc", "]"}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{"polynomials", "=", 
-  RowBox[{
+   RowBox[{"OpenAppend", "[", "fileloc", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"polynomials", "=", 
    RowBox[{
-    RowBox[{"Prepend", "[", 
-     RowBox[{"#", ",", "1"}], "]"}], "&"}], "/@", 
-   RowBox[{"Tuples", "[", 
-    RowBox[{"coefficients", ",", "n"}], "]"}]}]}], "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"Prepend", "[", 
+      RowBox[{"#", ",", "1"}], "]"}], "&"}], "/@", 
+    RowBox[{"Tuples", "[", 
+     RowBox[{"coefficients", ",", "n"}], "]"}]}]}], 
+  ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"computePolyRoot", "[", "list_", "]"}], ":=", "\[IndentingNewLine]", 
   RowBox[{"Module", "[", 
@@ -80,8 +83,10 @@ Cell[BoxData[{
      RowBox[{
       RowBox[{
        RowBox[{"WriteString", "[", 
-        RowBox[{"fileStream", ",", " ", "#", ",", " ", "\"\<\\n\>\""}], "]"}],
-        " ", "&"}], "/@", " ", "roots"}]}]}], "\[IndentingNewLine]", 
+        RowBox[{"fileStream", ",", " ", 
+         RowBox[{"Re", "[", "#", "]"}], ",", " ", "\"\<,\>\"", ",", " ", 
+         RowBox[{"Im", "[", "#", "]"}], ",", "\"\<\\n\>\""}], "]"}], " ", 
+       "&"}], "/@", " ", "roots"}]}]}], "\[IndentingNewLine]", 
    "]"}]}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"Map", "[", 
@@ -89,21 +94,21 @@ Cell[BoxData[{
   ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"Close", "[", "fileloc", "]"}], ";"}]}], "Input",
- CellChangeTimes->{{3.6472797891762486`*^9, 3.6472797892342978`*^9}, {
-  3.727971753297289*^9, 3.7279717548505096`*^9}, {3.7279767020421753`*^9, 
-  3.727976760811159*^9}, {3.7279773865651007`*^9, 3.72797738671589*^9}, {
-  3.7279776432035713`*^9, 3.7279776433264112`*^9}, {3.727978039959943*^9, 
-  3.7279780400822363`*^9}, {3.727978096746667*^9, 3.727978096897277*^9}, {
-  3.7279790083779297`*^9, 3.727979026121324*^9}, {3.72797997782508*^9, 
-  3.727979978496266*^9}, {3.7279800252306347`*^9, 3.727980026570582*^9}, {
-  3.727980168277225*^9, 
-  3.727980168743573*^9}},ExpressionUUID->"dd3f3001-0418-4b35-bd12-\
-551b2b04cffa"]
+ CellChangeTimes->CompressedData["
+1:eJwdx1sog3EYgPGvpRA5LLZ95ZiLpUZsluZCNi4camq1aWbahG1KknZnh1pc
+iDnUaprSSL4LudDYtNas2C6UmmhCMRS1FclWJPm/78XTr6d2ZEoxxqIoqpIE
+Xm3vKLcEKemwbRcdddQfLkRTUl2rBrWrI9VLxJwMzQfl5QozuPamQhnHuAvM
+Tk+gt/6/KLjvZcXAgxfuBWg9qkApXmGHk/ic7JSBRYa2Y9CU7EeH9PwwKJYp
+0NyHvDg4eM5Fy35LHpeJLTV376Aw4fsBF14D6Eq6mLNC5BuNNFh17exxE7/s
+LnQmmBauE0s9WhG4ke3yeoj57hO0d3ZSv0mU8M2oRWOIfxJtnO5LMKAVJMBP
+cTM6IZq7B89U7CdwMcNmuLGU1E/H98DmtDwMhq6VKMMEP8BvRwQN+oubeESJ
+nocO1Oms+AUm1KeyWmhi+/wqytyEGiqJZlYUPaX7ZI1Er1qH/gMAlP5G
+  
+  "],ExpressionUUID->"dd3f3001-0418-4b35-bd12-551b2b04cffa"]
 },
 WindowSize->{798, 818},
-WindowMargins->{{Automatic, -7}, {Automatic, 0}},
-FrontEndVersion->"11.2 for Mac OS X x86 (32-bit, 64-bit Kernel) (September \
-10, 2017)",
+WindowMargins->{{Automatic, 444}, {219, Automatic}},
+FrontEndVersion->"11.1 for Linux x86 (64-bit) (April 18, 2017)",
 StyleDefinitions->"Default.nb"
 ]
 (* End of Notebook Content *)
@@ -117,7 +122,8 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[558, 20, 3025, 80, 325, "Input",ExpressionUUID->"dd3f3001-0418-4b35-bd12-551b2b04cffa"]
+Cell[558, 20, 3122, 86, 387, "Input", "ExpressionUUID" -> \
+"dd3f3001-0418-4b35-bd12-551b2b04cffa"]
 }
 ]
 *)
