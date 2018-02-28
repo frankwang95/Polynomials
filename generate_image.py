@@ -1,14 +1,30 @@
-from itertools import islice
+import multiprocessing as mp
 import numpy as np
+import math
 from PIL import Image
 
 
-n = 5000000
-input_filename = 'out.txt'
+pixels = 25000
 image_range = np.array([[-2.0, 2.0], [-2.0, 2.0]])
-pixels = 15000
 output_filename = 'image.tif'
+total_roots = 4000000000
+chunk_size = 100000
+n_processors = 32
+n_jobs = 128
 
+
+def generate_polynomial(n):
+    code = np.base_repr(n, 3)
+    return np.array([int(s) - 1 for s in code])
+
+def solve_polynomial(work_range):
+    start_n, stop_n = work_range
+    roots = np.array([])
+    for n in range(start_n, stop_n):
+        poly = generate_polynomial(n)
+        if not np.all(poly == 0):
+            roots = np.concatenate((roots, np.roots(poly)))
+    return np.stack((roots.real, roots.imag), -1)
 
 def generate_hist(data):
     return np.histogram2d(
@@ -16,35 +32,34 @@ def generate_hist(data):
         range=image_range, bins=pixels
     )[0]
 
-def parse_to_numbers(chunk):
-    roots = []
-    for c in chunk:
-        # Ignoring weird mathematica scientic notation output
-        try:
-            roots.append([float(s) for s in c.split(',')])
-        except:
-            continue
-    return np.array(roots)
-
 def main():
-    with open(input_filename, 'r') as f:
-        histogram = np.zeros((pixels, pixels))
-        i = 0
-        while True:
-            print('\rdone: {}'.format(i * n), end='')
-            chunk = list(islice(f, n))
-            if not chunk: break
-            data = parse_to_numbers(chunk)
-            histogram += generate_hist(data)
-            i += 1
-    print('\n')
-    print('Finished generating historam, writing image...')
+    n = 0
+    histogram = np.zeros((pixels, pixels))
+    worker_pool = mp.Pool(n_processors)
 
+    while True:
+        lower_range = chunk_size * n
+        upper_range = chunk_size * (n + 1)
+        incr = math.ceil((upper_range - lower_range) / n_jobs)
+
+        print('\rworking on range: {}, {}'.format(lower_range, upper_range), end='')
+        if lower_range >= total_roots: break
+
+        jobs = [
+            (lower_range + incr * l, min(lower_range + incr * (l + 1), upper_range))
+        for l in range(n_jobs)]
+
+        roots = worker_pool.map(solve_polynomial, jobs)
+        roots = np.concatenate(roots)
+        histogram += generate_hist(roots)
+        n += 1
+
+    print('\nFinished generating historam, writing image...')
     histogram = histogram * 4
     histogram = np.clip(np.log(histogram + 1) * 2 / np.log(histogram.max() + 1), 0, 1)
     histogram = (np.stack((histogram, histogram, histogram), axis=2) * 255).astype('uint8')
     im = Image.fromarray(histogram)
     im.save(output_filename)
-
+    print('..done.')
 
 main()
